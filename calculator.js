@@ -7,79 +7,51 @@ import {
   equalsButton,
   clearButton,
 } from "./domElements.js";
-import { add, subtract, divide, multiply } from "./mathOperations.js";
+import { add, subtract, multiply, divide } from "./mathOperations.js";
 
-let currentInput = "";
-let previousInput = "";
-let operator = null;
-let expression = "";
-
-// Update the display with the current expression
-const updateDisplay = () => (display.textContent = expression || "0");
-
-// Handle number button clicks
-const handleNumberClick = ({ target }) => {
-  currentInput =
-    operator && currentInput === ""
-      ? target.textContent
-      : currentInput + target.textContent;
-  expression = previousInput + (operator ? ` ${operator} ` : "") + currentInput;
-  updateDisplay();
-};
-
-// Handle operator button clicks
-const handleOperatorClick = ({ target }) => {
-  if (currentInput === "") return; // Ignore if there's no number
-  if (previousInput) handleEqualsClick(); // Calculate result before operator if needed
-
-  operator = target.textContent;
-  previousInput = currentInput;
-  currentInput = "";
-  expression = previousInput + ` ${operator} `;
-  updateDisplay();
-};
-
-// Handle equals button click
-const handleEqualsClick = () => {
-  if (!operator || currentInput === "") return;
-
-  let result;
-  const prev = parseFloat(previousInput);
-  const current = parseFloat(currentInput);
-
-  if (operator === "+") {
-    result = add(prev, current);
-  } else if (operator === "-") {
-    result = subtract(prev, current);
-  } else if (operator === "/") {
-    result = divide(prev, current);
-  } else if (operator === "*") {
-    result = multiply(prev, current);
-  }
-
-  currentInput = result.toString();
-  expression = currentInput;
+let currentInput = "",
+  previousInput = "",
   operator = null;
-  previousInput = "";
+
+const updateDisplay = () => (display.textContent = currentInput || "0");
+
+const operations = {
+  "+": add,
+  "-": subtract,
+  "*": multiply,
+  "/": divide,
+};
+
+const handleButtonClick = ({ target }) => {
+  const value = target.textContent;
+
+  if ("0123456789".includes(value)) {
+    currentInput = operator && !currentInput ? value : currentInput + value;
+  } else if (operations[value]) {
+    if (currentInput) {
+      previousInput = currentInput;
+      currentInput = "";
+      operator = value;
+    }
+  } else if (value === "=") {
+    if (currentInput && previousInput) {
+      currentInput = operations[operator](
+        +previousInput,
+        +currentInput
+      ).toString();
+      operator = previousInput = "";
+    }
+  } else if (value === "C") {
+    currentInput = previousInput = operator = "";
+  }
   updateDisplay();
 };
 
-// Handle clear button click
-const handleClearClick = () => {
-  currentInput = previousInput = operator = "";
-  expression = "";
-  updateDisplay();
-};
-
-// Adding event listeners to buttons
-numberButtons.forEach((button) =>
-  button.addEventListener("click", handleNumberClick)
-);
-operatorButtons.forEach((button) =>
-  button.addEventListener("click", handleOperatorClick)
-);
-equalsButton.addEventListener("click", handleEqualsClick);
-clearButton.addEventListener("click", handleClearClick);
+[numberButtons, operatorButtons]
+  .flat()
+  .forEach((button) => button.addEventListener("click", handleButtonClick));
+equalsButton.addEventListener("click", handleButtonClick);
+clearButton.addEventListener("click", handleButtonClick);
 
 // // calculator.js
 
