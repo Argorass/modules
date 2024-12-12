@@ -15,3 +15,8 @@ export function divide(num1, num2) {
   }
   return num1 / num2;
 }
+
+//add multiply
+export function multiply(num1, num2) {
+  return num1 * num2;
+}
