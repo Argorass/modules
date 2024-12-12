@@ -7,54 +7,69 @@ import {
   equalsButton,
   clearButton,
 } from "./domElements.js";
-import { add, subtract } from "./mathOperattions.js";
+import { add, subtract } from "./mathOperations.js";
 
 let currentInput = "";
 let previousInput = "";
 let operator = null;
+let expression = "";
 
-// Function to update the display
+// Function to update the display with the expression
 function updateDisplay() {
-  display.textContent = currentInput || "0";
+  display.textContent = expression || "0";
 }
 
 // Function to handle number button clicks
 function handleNumberClick(event) {
   const number = event.target.textContent;
-  if (currentInput.length < 10) {
-    // Limit to 10 digits
-    currentInput += number;
-    updateDisplay();
+
+  // If we have an operator and the current input is empty, we should allow adding a number after the operator
+  if (operator && currentInput === "") {
+    currentInput = number; // Start a new number after the operator
+  } else {
+    currentInput += number; // Continue building the current input number
   }
+
+  expression = previousInput + (operator ? ` ${operator} ` : "") + currentInput; // Update the full expression
+  updateDisplay();
 }
 
 // Function to handle operator button clicks
 function handleOperatorClick(event) {
-  if (currentInput === "") return; // Ignore if there's no number
-  if (previousInput !== "") {
-    handleEqualsClick(); // If there's a previous input, calculate the result first
+  if (currentInput === "") return; // Ignore if there's no number to operate on
+
+  // If an operator was already clicked, we calculate the result before continuing
+  if (previousInput !== "" && currentInput !== "") {
+    handleEqualsClick(); // Calculate the result first before continuing with the new operator
   }
-  operator = event.target.textContent;
-  previousInput = currentInput;
-  currentInput = "";
+
+  operator = event.target.textContent; // Store the new operator
+  previousInput = currentInput; // Store the previous number
+  currentInput = ""; // Clear current input for the next number
+
+  expression = previousInput + ` ${operator} `; // Update the expression with operator
+  updateDisplay();
 }
 
 // Function to handle equals button click
 function handleEqualsClick() {
-  if (operator === null || currentInput === "") return;
+  if (operator === null || currentInput === "") return; // No calculation if operator or current input is empty
+
   const prev = parseFloat(previousInput);
   const current = parseFloat(currentInput);
   let result;
 
+  // Perform the calculation based on the selected operator
   if (operator === "+") {
     result = add(prev, current);
   } else if (operator === "-") {
     result = subtract(prev, current);
   }
 
-  currentInput = result.toString();
-  operator = null;
-  previousInput = "";
+  currentInput = result.toString(); // Set the result as the current input
+  expression = currentInput; // Update the expression to show the result
+  operator = null; // Clear the operator after calculation
+  previousInput = ""; // Clear the previous input
   updateDisplay();
 }
 
@@ -63,6 +78,7 @@ function handleClearClick() {
   currentInput = "";
   previousInput = "";
   operator = null;
+  expression = ""; // Clear the entire expression
   updateDisplay();
 }
 
