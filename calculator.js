@@ -7,7 +7,7 @@ import {
   equalsButton,
   clearButton,
 } from "./domElements.js";
-import { add, subtract } from "./mathOperations.js";
+import { add, subtract, divide } from "./mathOperations.js";
 
 let currentInput = "";
 let previousInput = "";
@@ -43,10 +43,17 @@ const handleOperatorClick = ({ target }) => {
 const handleEqualsClick = () => {
   if (!operator || currentInput === "") return;
 
-  const result =
-    operator === "+"
-      ? add(parseFloat(previousInput), parseFloat(currentInput))
-      : subtract(parseFloat(previousInput), parseFloat(currentInput));
+  let result;
+  const prev = parseFloat(previousInput);
+  const current = parseFloat(currentInput);
+
+  if (operator === "+") {
+    result = add(prev, current);
+  } else if (operator === "-") {
+    result = subtract(prev, current);
+  } else if (operator === "/") {
+    result = divide(prev, current);
+  }
 
   currentInput = result.toString();
   expression = currentInput;
