@@ -7,7 +7,7 @@ import {
   equalsButton,
   clearButton,
 } from "./domElements.js";
-import { add, subtract } from "./mathOperations.js";
+import { add, subtract } from "./mathOperattions.js";
 
 let currentInput = "";
 let previousInput = "";
